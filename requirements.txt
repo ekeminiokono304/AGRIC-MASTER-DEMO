@@ -1,0 +1,20 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+joblib==1.4.2
+scikit-learn==1.5.2
+numpy==1.26.4
+pandas==2.2.3
+python-multipart==0.0.12
+python-dotenv==1.0.1
+httpx==0.27.2
+Pillow==10.4.0
+
+# torch / torchvision are intentionally NOT pinned here.
+# They're only imported lazily inside disease_service.py, the moment a real
+# disease prediction runs. Add them once disease_model.pt actually exists:
+# torch==2.4.1
+# torchvision==0.19.1
+# (use the CPU-only wheel on Render/HF free tiers to keep image size down --
+#  see README.md "Deployment notes")

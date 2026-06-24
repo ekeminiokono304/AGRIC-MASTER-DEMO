@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: agric-master-api
+    env: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: WEATHER_API_KEY
+        sync: false
