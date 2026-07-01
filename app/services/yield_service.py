@@ -1,33 +1,25 @@
-import numpy as np
-
-from app.core.model_loader import model_manager
+from app.core.grok_service import grok_service
 from app.core.exceptions import PredictionError
 from app.schemas.yield_schema import YieldRequest, YieldResponse
 
-CROP_ENCODING = {"maize": 0, "rice": 1, "cassava": 2, "yam": 3, "sorghum": 4}
-SOIL_ENCODING = {"loamy": 0, "sandy": 1, "clay": 2, "silty": 3}
-
 
 def predict_yield(payload: YieldRequest) -> YieldResponse:
-    model = model_manager.get("yield")
-
     try:
-        features = np.array([[
-            CROP_ENCODING.get(payload.crop_type.lower(), 0),
-            SOIL_ENCODING.get(payload.soil_type.lower(), 0),
-            payload.rainfall_mm,
-            payload.fertilizer_kg_per_ha,
-            payload.farm_size_ha,
-        ]])
-        prediction = float(model.predict(features)[0])
-        margin = prediction * 0.12  # demo-level confidence band
+        result = grok_service.predict_yield(
+            crop_type=payload.crop_type,
+            soil_type=payload.soil_type,
+            rainfall_mm=payload.rainfall_mm,
+            fertilizer_kg_per_ha=payload.fertilizer_kg_per_ha,
+            farm_size_ha=payload.farm_size_ha,
+            region=payload.region,
+        )
     except Exception as exc:
         raise PredictionError("yield", str(exc)) from exc
 
     return YieldResponse(
-        predicted_yield_tons_per_ha=round(prediction, 2),
-        confidence_interval_low=round(prediction - margin, 2),
-        confidence_interval_high=round(prediction + margin, 2),
+        predicted_yield_tons_per_ha=result["predicted_yield_tons_per_ha"],
+        confidence_interval_low=result["confidence_interval_low"],
+        confidence_interval_high=result["confidence_interval_high"],
         region=payload.region,
         crop_type=payload.crop_type,
     )

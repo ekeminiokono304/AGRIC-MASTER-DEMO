@@ -5,8 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.core.exceptions import ModelNotLoadedException, PredictionError
-from app.core.model_loader import model_manager
+from app.core.exceptions import PredictionError
 from app.routers import disease_router, drought_router, health, livestock_router, price_router, yield_router
 
 logging.basicConfig(level=logging.INFO)
@@ -20,24 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-def load_models() -> None:
-    model_manager.load_all(settings.MODEL_DIR)
-
-
-@app.exception_handler(ModelNotLoadedException)
-async def model_not_loaded_handler(request: Request, exc: ModelNotLoadedException):
-    return JSONResponse(
-        status_code=503,
-        content={
-            "error": "model_unavailable",
-            "model": exc.model_name,
-            "status": exc.status.value,
-            "message": str(exc),
-        },
-    )
 
 
 @app.exception_handler(PredictionError)
