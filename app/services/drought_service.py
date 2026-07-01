@@ -1,19 +1,14 @@
-import numpy as np
-
-from app.core.model_loader import model_manager
+from app.core.grok_service import grok_service
 from app.core.exceptions import PredictionError
 from app.schemas.drought_schema import DroughtRequest, DroughtResponse
 
 
-def _risk_level(score: float) -> str:
-    if score < 0.3:
-        return "Low"
-    if score < 0.6:
-        return "Moderate"
-    if score < 0.8:
-        return "High"
-    return "Severe"
-
+_RISK_LEVEL_MAP = {
+    "Low": 0.2,
+    "Moderate": 0.5,
+    "High": 0.75,
+    "Severe": 0.95,
+}
 
 _OUTLOOKS = {
     "Low": "Conditions expected to remain stable over the next 90 days.",
@@ -24,18 +19,23 @@ _OUTLOOKS = {
 
 
 def score_drought_risk(payload: DroughtRequest) -> DroughtResponse:
-    model = model_manager.get("drought")
-
     try:
-        features = np.array([[payload.rainfall_mm, payload.avg_temperature_c, payload.soil_moisture_pct]])
-        score = max(0.0, min(1.0, float(model.predict(features)[0])))
+        result = grok_service.predict_drought_risk(
+            region=payload.region,
+            soil_moisture_percent=payload.soil_moisture_pct,
+            rainfall_last_30_days_mm=payload.rainfall_mm,
+            temperature_avg_c=payload.avg_temperature_c,
+        )
+        
+        level = result["drought_risk_level"]
+        score = _RISK_LEVEL_MAP.get(level, 0.5)
+        
     except Exception as exc:
         raise PredictionError("drought", str(exc)) from exc
 
-    level = _risk_level(score)
     return DroughtResponse(
         region=payload.region,
         drought_risk_score=round(score, 3),
         risk_level=level,
-        outlook_90_day=_OUTLOOKS[level],
+        outlook_90_day=_OUTLOOKS.get(level, "Unable to determine outlook."),
     )
