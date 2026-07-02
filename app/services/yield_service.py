@@ -1,11 +1,11 @@
-from app.core.grok_service import grok_service
+from app.core.groq_service import groq_service
 from app.core.exceptions import PredictionError
 from app.schemas.yield_schema import YieldRequest, YieldResponse
 
 
 def predict_yield(payload: YieldRequest) -> YieldResponse:
     try:
-        result = grok_service.predict_yield(
+        result = groq_service.predict_yield(
             crop_type=payload.crop_type,
             soil_type=payload.soil_type,
             rainfall_mm=payload.rainfall_mm,

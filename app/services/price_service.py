@@ -1,11 +1,11 @@
-from app.core.grok_service import grok_service
+from app.core.groq_service import groq_service
 from app.core.exceptions import PredictionError
 from app.schemas.price_schema import PriceRequest, PriceResponse, PriceForecastPoint
 
 
 def forecast_price(payload: PriceRequest) -> PriceResponse:
     try:
-        result = grok_service.predict_price(
+        result = groq_service.predict_price(
             crop_type=payload.commodity,
             market_region=payload.market,
             season="current",

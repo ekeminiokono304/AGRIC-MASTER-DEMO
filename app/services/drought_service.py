@@ -1,4 +1,4 @@
-from app.core.grok_service import grok_service
+from app.core.groq_service import groq_service
 from app.core.exceptions import PredictionError
 from app.schemas.drought_schema import DroughtRequest, DroughtResponse
 
@@ -20,7 +20,7 @@ _OUTLOOKS = {
 
 def score_drought_risk(payload: DroughtRequest) -> DroughtResponse:
     try:
-        result = grok_service.predict_drought_risk(
+        result = groq_service.predict_drought_risk(
             region=payload.region,
             soil_moisture_percent=payload.soil_moisture_pct,
             rainfall_last_30_days_mm=payload.rainfall_mm,

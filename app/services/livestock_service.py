@@ -1,4 +1,4 @@
-from app.core.grok_service import grok_service
+from app.core.groq_service import groq_service
 from app.core.exceptions import PredictionError
 from app.schemas.livestock_schema import LivestockRequest, LivestockResponse
 
@@ -11,7 +11,7 @@ def detect_anomaly(payload: LivestockRequest) -> LivestockResponse:
             for i, r in enumerate(payload.readings)
         ])
         
-        result = grok_service.predict_livestock_health(
+        result = groq_service.predict_livestock_health(
             animal_type=payload.animal_id.split("_")[0] if "_" in payload.animal_id else "cattle",
             symptoms=readings_summary,
             age_months=24,  # placeholder
