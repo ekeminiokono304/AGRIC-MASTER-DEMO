@@ -1,13 +1,10 @@
-from app.core.model_loader import ModelStatus
-
-
 class ModelNotLoadedException(Exception):
     """Raised when a router asks for a model that isn't loaded/available."""
 
-    def __init__(self, model_name: str, status: ModelStatus):
+    def __init__(self, model_name: str, status: str):
         self.model_name = model_name
         self.status = status
-        super().__init__(f"Model '{model_name}' is not available (status: {status.value})")
+        super().__init__(f"Model '{model_name}' is not available (status: {status})")
 
 
 class PredictionError(Exception):
