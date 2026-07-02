@@ -1,16 +1,18 @@
 from fastapi import APIRouter
 
-from app.core.model_loader import model_manager
+from app.core.groq_service import groq_service
 
 router = APIRouter()
 
 
 @router.get("/health")
 def health_check():
-    """Quick pre-demo check: see at a glance which models are actually live."""
-    statuses = model_manager.status_report()
+    """Quick pre-demo check: see at a glance if the Groq LLM API is live."""
+    api_ready = bool(groq_service.api_key)
     return {
         "status": "ok",
-        "models": statuses,
-        "all_models_ready": all(s == "loaded" for s in statuses.values()),
+        "models": {
+            "groq_llm": "ready" if api_ready else "api_key_missing"
+        },
+        "all_models_ready": api_ready,
     }
